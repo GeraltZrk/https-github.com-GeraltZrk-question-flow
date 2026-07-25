@@ -81,9 +81,6 @@ export async function critique(
     });
   }
 
-  if (issues.length === 0) {
-    throw new CriticError("Critic returned no valid issues", "VALIDATION_FAILED");
-  }
-
+  // Zero issues is a valid clean result (all READY)
   return issues;
 }

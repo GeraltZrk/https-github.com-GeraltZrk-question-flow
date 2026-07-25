@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { compile, CompilerError } from "@/ai/compiler";
-import { critique, CriticError } from "@/ai/critic";
+import { critique } from "@/ai/critic";
 import { generateDemoEvidence } from "@/domain/evidencePreflight";
 import { isBlockingIssue } from "@/domain/issuePolicy";
 import { demoCaseIR, demoIssues } from "@/fixtures/demo";
@@ -99,9 +99,10 @@ describe("critic (mock)", () => {
     }
   });
 
-  it("throws CriticError when model returns empty array", async () => {
-    await expect(
-      critique(noImages, evidence, demoCaseIR, mockModel([])),
-    ).rejects.toThrow(CriticError);
+  it("returns empty array when critic finds no issues (valid clean result)", async () => {
+    const result = await critique(
+      noImages, evidence, demoCaseIR, mockModel([]),
+    );
+    expect(result).toEqual([]);
   });
 });

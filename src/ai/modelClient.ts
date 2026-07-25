@@ -25,19 +25,19 @@ export function createOpenAIModel(modelName: string): StructuredModel {
         temperature: 0.1,
       };
 
-      // Try structured outputs (json_schema) first; fall back to json_object
-      try {
-        body.response_format = {
-          type: "json_schema",
-          json_schema: {
-            name: "output",
-            strict: true,
-            schema: jsonSchema,
-          },
-        };
-      } catch {
-        body.response_format = { type: "json_object" };
-      }
+      // Use json_object mode — reliable with any JSON schema shape.
+      // json_schema strict mode requires additionalProperties:false on every object,
+      // which zod-to-json-schema does not guarantee.
+      body.response_format = { type: "json_object" };
+      // Include the expected schema in the prompt so the model follows it
+      body.messages = [
+        {
+          role: "system",
+          content: `You must respond with a single JSON object conforming to this schema:
+${JSON.stringify(jsonSchema, null, 2)}`,
+        },
+        { role: "user", content },
+      ];
 
       const res = await fetch(`${OPENAI_BASE}/chat/completions`, {
         method: "POST",
