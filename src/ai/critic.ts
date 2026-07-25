@@ -47,8 +47,16 @@ export async function critique(
     );
   }
 
-  // Ensure it's an array
-  const arr = Array.isArray(raw) ? raw : [raw];
+  // json_object mode wraps in {"issues": [...]}; also accept bare array
+  let arr: unknown[];
+  if (Array.isArray(raw)) {
+    arr = raw;
+  } else if (raw !== null && typeof raw === "object" && "issues" in raw) {
+    const wrapped = (raw as Record<string, unknown>).issues;
+    arr = Array.isArray(wrapped) ? wrapped : [wrapped];
+  } else {
+    arr = [raw];
+  }
 
   // Validate each issue
   const issues: Issue[] = [];
@@ -57,10 +65,7 @@ export async function critique(
   for (const s of caseIR.segments) knownIds.add(s.id);
   for (const f of caseIR.fields) knownIds.add(f.id);
   for (const t of caseIR.timings) knownIds.add(t.id);
-  for (const r of evidence.regions) knownIds.add(r.id);
-
-  for (const item of arr) {
-    const parsed = IssueSchema.safeParse(item);
+  for (const r of evidence.regions) knownIds.add(r.id);  for (const item of arr) {    const parsed = IssueSchema.safeParse(item);
     if (!parsed.success) continue; // Skip invalid issues
 
     const issue = parsed.data;
