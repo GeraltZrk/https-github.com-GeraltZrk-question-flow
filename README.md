@@ -40,6 +40,18 @@ npm run dev
 
 需要 Node.js `>=20.9.0`；仓库的 `.nvmrc` 固定主版本为 Node 20。
 
+测试工具链固定为 `Vitest 3 + Vite 6`，兼容团队现有的 Node 20 环境。请使用
+`npm ci` 严格按仓库锁文件安装，不要单独升级 Vitest 或 Vite。
+
+Windows 如果曾经安装失败并出现 `win32 binding` 缺失，请在 PowerShell 中删除
+旧的 `node_modules` 后重新安装：
+
+```powershell
+Remove-Item -Recurse -Force node_modules
+npm cache verify
+npm ci
+```
+
 提交前统一运行：
 
 ```bash
